@@ -1,5 +1,7 @@
 import sqlite3
 from flask import Flask, render_template, request, jsonify
+from flask_cors import CORS
+
 
 
 def init_sqlite_db():
@@ -11,8 +13,12 @@ def init_sqlite_db():
     print("Table created successfully")
     conn.close()
 
+
 init_sqlite_db()
 app = Flask(__name__)
+CORS(app)
+
+
 @app.route('/')
 @app.route('/enter-new/')
 def reg():
@@ -20,24 +26,27 @@ def reg():
 
 @app.route('/add-new/', methods=['POST'])
 def add_new():
+    msg = None
     if request.method == "POST":
         try:
             fname = request.form['fname']
             uname = request.form['uname']
-            passw= request.form['passw']
+            passw = request.form['passw']
             email = request.form['email']
+
             with sqlite3.connect('database.db') as con:
                 cur = con.cursor()
-                cur.execute("INSERT INTO accounts (fname, uname, pass,email) VALUES (?, ?, ?, ?)", (fname, uname, passw,email))
+                cur.execute("INSERT INTO accounts (fname, uname, passw, email) VALUES (?, ?, ?, ?)", (fname, uname, passw, email))
                 con.commit()
-                msg = fname + "Account succefully created."
+                msg = fname + " Account succefully created."
         except Exception as e:
             con.rollback()
             msg = "Error occurred in insert operation: " + str(e)
         finally:
             con.close()
-'''            return render_template('result.html', msg=msg)
-'''
+            return msg
+
+
 @app.route('/show-accounts/', methods=["GET"])
 def show_accounts():
     records = []
