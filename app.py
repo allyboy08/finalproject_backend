@@ -2,6 +2,11 @@ import sqlite3
 from flask import Flask, render_template, request, jsonify
 from flask_cors import CORS
 
+def dic_factory(cursor, row):
+    d = {}
+    for idx, col in enumerate(cursor.description):
+        d[col[0]] = row[idx]
+    return d
 
 
 def init_sqlite_db():
@@ -52,15 +57,10 @@ def show_accounts():
     records = []
     try:
         with sqlite3.connect('database.db') as con:
+            con.row_factory = dic_factory
             cur = con.cursor()
             cur.execute("SELECT * FROM accounts")
             records = cur.fetchall()
-            for row in records:
-                print(row)
-
-            for i in row:
-                print(i)
-
     except Exception as e:
         con.rollback()
         print("There was am error fetching accounts from the database." + str(e))
@@ -76,6 +76,7 @@ def delete_account(accounts_id):
     msg = None
     try:
         with sqlite3.connect('database.db') as con:
+
             cur = con.cursor()
             cur.execute("DELETE FROM accounts WHERE id=" + str(accounts_id))
             con.commit()
