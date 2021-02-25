@@ -70,7 +70,7 @@ def show_accounts():
 
 
 
-@app.route('/delete-student/<int:accounts_id>/', methods=["GET"])
+@app.route('/delete-account/<int:accounts_id>/', methods=["GET"])
 def delete_account(accounts_id):
 
     msg = None
