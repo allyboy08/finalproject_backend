@@ -52,14 +52,14 @@ def add_new():
             con.close()
             return jsonify(msg)
 
-@app.route('/login-account/', methods=["POST"])
+@app.route('/login-account/', methods=["GET"])
 def login_account():
     records = {}
     if request.method == "POST":
         msg = None
 
         try:
-            post_data = request.form
+            post_data = request.get_json()
             uname = post_data['uname']
             passw = post_data['passw']
 
