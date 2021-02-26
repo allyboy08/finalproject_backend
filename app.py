@@ -50,7 +50,7 @@ def add_new():
             msg = "Error occurred in insert operation: " + str(e)
         finally:
             con.close()
-            return msg
+            return jsonify(msg)
 
 @app.route('/login-account/', methods=["POST"])
 def login_account():
