@@ -25,19 +25,20 @@ CORS(app)
 
 
 @app.route('/')
-@app.route('/enter-new/')
-def reg():
-    return render_template('index.html')
+# @app.route('/enter-new/')
+# def reg():
+#     return render_template('index.html')
 
 @app.route('/add-new/', methods=['POST'])
 def add_new():
     msg = None
     if request.method == "POST":
         try:
-            fname = request.form['fname']
-            uname = request.form['uname']
-            passw = request.form['passw']
-            email = request.form['email']
+            post_data = request.get_json()
+            fname = post_data['fname']
+            uname = post_data['uname']
+            passw = post_data['passw']
+            email = post_data['email']
 
             with sqlite3.connect('database.db') as con:
                 cur = con.cursor()
@@ -51,6 +52,28 @@ def add_new():
             con.close()
             return msg
 
+@app.route('/login-account/', methods=["POST"])
+def login_account():
+    records = {}
+    if request.method == "POST":
+        msg = None
+
+        try:
+            post_data = request.form
+            uname = post_data['uname']
+            passw = post_data['passw']
+
+            with sqlite3.connect('database.db') as con:
+                cur = con.cursor()
+                sql = "SELECT * FROM accounts WHERE uname = ? and passw = ?"
+                cur.execute(sql, [uname, passw])
+                records = cur.fetchall()
+        except Exception as e:
+            con.rollback()
+            msg = "Error occurred while fetching data from db: " + str(e)
+        finally:
+            con.close()
+            return jsonify(records)
 
 @app.route('/show-accounts/', methods=["GET"])
 def show_accounts():
