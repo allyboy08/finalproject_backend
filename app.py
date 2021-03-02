@@ -75,6 +75,33 @@ def login_account():
             con.close()
             return jsonify(records)
 
+@app.route('/edit-account/<int:customer_id>/', methods=["PUT"])
+def edit_account(customer_id):
+
+    records= {
+        'id': customer_id,
+        'fname': request.json['fname'],
+        'uname' : request.json['uname'],
+        'passw' : request.json['passw'],
+        'email' : request.json['email']
+    }
+    # Connecting to database
+    con = sqlite3.connect('database.db')
+    # Getting cursor
+    cur = con.cursor()
+    sql = ("UPDATE accounts SET fname = ?, uname = ?, passw = ?, email = ? WHERE id =?")
+        # Editing data
+    cur.execute(sql, (records['fname'],records['uname'], records['passw'], records['email'],records['id']))
+        # Applying changes
+    con.commit()
+    return jsonify(records)
+
+
+
+
+
+
+
 @app.route('/show-accounts/', methods=["GET"])
 def show_accounts():
     records = []
@@ -92,16 +119,39 @@ def show_accounts():
         return jsonify(records)
 
 
+@app.route('/show-accounts/<int:customer_id>/', methods=["GET"])
+def show_account(customer_id):
+    records = {}
+    try:
+        with sqlite3.connect('database.db') as con:
+            con.row_factory = dic_factory
+            cur = con.cursor()
+            cur.execute("SELECT * FROM accounts WHERE id=" + str(customer_id))
+            records = cur.fetchone()
+    except Exception as e:
+        con.rollback()
+        print("There was am error fetching results from the database." + str(e))
+    finally:
+        con.close()
+        return jsonify(records)
 
-@app.route('/delete-account/<int:accounts_id>/', methods=["GET"])
-def delete_account(accounts_id):
 
+
+
+@app.route('/delete-account/', methods=["GET"])
+def delete_account():
+    records = {}
     msg = None
     try:
+        post_data = request.get_json()
+
+        passw = post_data['passw']
         with sqlite3.connect('database.db') as con:
 
             cur = con.cursor()
-            cur.execute("DELETE FROM accounts WHERE id=" + str(accounts_id))
+            sql = "DELETE * FROM accounts WHERE  passw = ?"
+            cur.execute(sql, [passw])
+            records = cur.fetchall()
             con.commit()
             msg = "A account was deleted successfully from the database."
     except Exception as e:
@@ -109,7 +159,7 @@ def delete_account(accounts_id):
         msg = "Error occurred when deleting a student in the database: " + str(e)
     finally:
         con.close()
-        return render_template('delete-success.html', msg=msg)
+        return jsonify(records)
 
 if __name__=='__main__':
     app.run(debug=True)
