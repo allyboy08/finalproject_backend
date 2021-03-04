@@ -16,6 +16,9 @@ def init_sqlite_db():
 
     conn.execute('CREATE TABLE IF NOT EXISTS accounts (id INTEGER PRIMARY KEY AUTOINCREMENT, fname TEXT, uname TEXT, passw TEXT, email TEXT)')
     print("Table created successfully")
+    # conn.execute(
+    #     'CREATE TABLE IF NOT EXISTS admin (id INTEGER PRIMARY KEY AUTOINCREMENT, uname TEXT, passw TEXT)')
+    # print("Table created successfully")
     conn.close()
 
 
@@ -43,6 +46,8 @@ def add_new():
             with sqlite3.connect('database.db') as con:
                 cur = con.cursor()
                 cur.execute("INSERT INTO accounts (fname, uname, passw, email) VALUES (?, ?, ?, ?)", (fname, uname, passw, email))
+                # cur.execute("INSERT INTO admin (uname, passw) VALUES ('admin','admin')",
+                #             (uname, passw))
                 con.commit()
                 msg = fname + " Account succefully created."
         except Exception as e:
@@ -52,6 +57,23 @@ def add_new():
             con.close()
             return jsonify(msg)
 
+def admin():
+    msg = None
+    try:
+        with sqlite3.connect('database.db') as con:
+            cur = con.cursor()
+
+            cur.execute("INSERT INTO admin (uname, passw) VALUES ('admin','1234')",
+                        )
+            con.commit()
+            msg = " Aadmin succefully created."
+    except Exception as e:
+        con.rollback()
+        msg = "Error occurred in insert operation: " + str(e)
+    finally:
+        con.close()
+        print(msg)
+admin()
 @app.route('/login-account/', methods=["GET"])
 def login_account():
     records = {}
@@ -66,6 +88,29 @@ def login_account():
             with sqlite3.connect('database.db') as con:
                 cur = con.cursor()
                 sql = "SELECT * FROM accounts WHERE uname = ? and passw = ?"
+                cur.execute(sql, [uname, passw])
+                records = cur.fetchall()
+        except Exception as e:
+            con.rollback()
+            msg = "Error occurred while fetching data from db: " + str(e)
+        finally:
+            con.close()
+            return jsonify(records)
+
+@app.route('/login-admin/', methods=["GET"])
+def login_admin():
+    records = {}
+    if request.method == "POST":
+        msg = None
+
+        try:
+            post_data = request.get_json()
+            uname = post_data['uname']
+            passw = post_data['passw']
+
+            with sqlite3.connect('database.db') as con:
+                cur = con.cursor()
+                sql = "SELECT * FROM admin WHERE uname = ? and passw = ?"
                 cur.execute(sql, [uname, passw])
                 records = cur.fetchall()
         except Exception as e:
@@ -99,7 +144,21 @@ def edit_account(customer_id):
 
 
 
-
+@app.route('/show-admin/', methods=["GET"])
+def show_admin():
+    records = []
+    try:
+        with sqlite3.connect('database.db') as con:
+            con.row_factory = dic_factory
+            cur = con.cursor()
+            cur.execute("SELECT * FROM admin")
+            records = cur.fetchall()
+    except Exception as e:
+        con.rollback()
+        print("There was am error fetching accounts from the database." + str(e))
+    finally:
+        con.close()
+        return jsonify(records)
 
 
 @app.route('/show-accounts/', methods=["GET"])
@@ -138,20 +197,16 @@ def show_account(customer_id):
 
 
 
-@app.route('/delete-account/', methods=["GET"])
-def delete_account():
-    records = {}
+@app.route('/delete-account/<int:customer_id>/', methods=["DELETE"])
+def delete_account(customer_id):
+
     msg = None
     try:
-        post_data = request.get_json()
-
-        passw = post_data['passw']
         with sqlite3.connect('database.db') as con:
 
             cur = con.cursor()
-            sql = "DELETE * FROM accounts WHERE  passw = ?"
-            cur.execute(sql, [passw])
-            records = cur.fetchall()
+            cur.execute("DELETE FROM accounts WHERE  id = " + str(customer_id))
+
             con.commit()
             msg = "A account was deleted successfully from the database."
     except Exception as e:
@@ -159,7 +214,7 @@ def delete_account():
         msg = "Error occurred when deleting a student in the database: " + str(e)
     finally:
         con.close()
-        return jsonify(records)
+        return jsonify(msg)
 
 if __name__=='__main__':
     app.run(debug=True)
