@@ -120,15 +120,18 @@ def login_admin():
             con.close()
             return jsonify(records)
 
+
 @app.route('/edit-account/<int:customer_id>/', methods=["PUT"])
 def edit_account(customer_id):
 
-    records= {
+    post_data = request.get_json()
+
+    records = {
         'id': customer_id,
-        'fname': request.json['fname'],
-        'uname' : request.json['uname'],
-        'passw' : request.json['passw'],
-        'email' : request.json['email']
+        'fname': post_data['fname'],
+        'uname': post_data['uname'],
+        'passw': post_data['passw'],
+        'email': post_data['email']
     }
     # Connecting to database
     con = sqlite3.connect('database.db')
