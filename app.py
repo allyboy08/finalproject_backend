@@ -32,7 +32,7 @@ CORS(app)
 # def reg():
 #     return render_template('index.html')
 
-@app.route('/add-new/', methods=['POST'])
+@app.route('https://pacific-ocean-71803.herokuapp.com/add-new/', methods=['POST'])
 def add_new():
     msg = None
     if request.method == "POST":
@@ -74,7 +74,7 @@ def admin():
         con.close()
         print(msg)
 admin()
-@app.route('/login-account/', methods=["GET"])
+@app.route('https://pacific-ocean-71803.herokuapp.com/login-account/', methods=["GET"])
 def login_account():
     records = {}
     if request.method == "POST":
@@ -97,7 +97,7 @@ def login_account():
             con.close()
             return jsonify(records)
 
-@app.route('/login-admin/', methods=["GET"])
+@app.route('https://pacific-ocean-71803.herokuapp.com/login-admin/', methods=["GET"])
 def login_admin():
     records = {}
     if request.method == "POST":
@@ -121,7 +121,7 @@ def login_admin():
             return jsonify(records)
 
 
-@app.route('/edit-account/<int:customer_id>/', methods=["PUT"])
+@app.route('https://pacific-ocean-71803.herokuapp.com/edit-account/<int:customer_id>/', methods=["PUT"])
 def edit_account(customer_id):
 
     post_data = request.get_json()
@@ -147,7 +147,7 @@ def edit_account(customer_id):
 
 
 
-@app.route('/show-admin/', methods=["GET"])
+@app.route('https://pacific-ocean-71803.herokuapp.com/show-admin/', methods=["GET"])
 def show_admin():
     records = []
     try:
@@ -164,7 +164,7 @@ def show_admin():
         return jsonify(records)
 
 
-@app.route('/show-accounts/', methods=["GET"])
+@app.route('https://pacific-ocean-71803.herokuapp.com/show-accounts/', methods=["GET"])
 def show_accounts():
     records = []
     try:
@@ -181,7 +181,7 @@ def show_accounts():
         return jsonify(records)
 
 
-@app.route('/show-accounts/<int:customer_id>/', methods=["GET"])
+@app.route('https://pacific-ocean-71803.herokuapp.com/show-accounts/<int:customer_id>/', methods=["GET"])
 def show_account(customer_id):
     records = {}
     try:
@@ -200,7 +200,7 @@ def show_account(customer_id):
 
 
 
-@app.route('/delete-account/<int:customer_id>/', methods=["DELETE"])
+@app.route('https://pacific-ocean-71803.herokuapp.com/delete-account/<int:customer_id>/', methods=["DELETE"])
 def delete_account(customer_id):
 
     msg = None
