@@ -28,6 +28,8 @@ CORS(app)
 
 
 @app.route('/')
+def info():
+    return "<p>/show-accounts/ is to show all registered users</p><p>/show-admin/ show the admin details</p>"
 # @app.route('/enter-new/')
 # def reg():
 #     return render_template('index.html')
@@ -181,21 +183,7 @@ def show_accounts():
         return jsonify(records)
 
 
-@app.route('/show-accounts/<int:customer_id>/', methods=["GET"])
-def show_account(customer_id):
-    records = {}
-    try:
-        with sqlite3.connect('database.db') as con:
-            con.row_factory = dic_factory
-            cur = con.cursor()
-            cur.execute("SELECT * FROM accounts WHERE id=" + str(customer_id))
-            records = cur.fetchone()
-    except Exception as e:
-        con.rollback()
-        print("There was am error fetching results from the database." + str(e))
-    finally:
-        con.close()
-        return jsonify(records)
+
 
 
 
