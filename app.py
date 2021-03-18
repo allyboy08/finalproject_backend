@@ -14,7 +14,7 @@ def init_sqlite_db():
     conn = sqlite3.connect('database.db')
     print("Opened database successfully")
 
-    conn.execute('CREATE TABLE IF NOT EXISTS accounts (id INTEGER PRIMARY KEY AUTOINCREMENT, fname TEXT, uname TEXT, passw TEXT, email TEXT)')
+    conn.execute('CREATE TABLE IF NOT EXISTS accounts (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, uname TEXT, passw TEXT, email TEXT)')
     print("Table created successfully")
     # conn.execute(
     #     'CREATE TABLE IF NOT EXISTS admin (id INTEGER PRIMARY KEY AUTOINCREMENT, uname TEXT, passw TEXT)')
@@ -40,18 +40,18 @@ def add_new():
     if request.method == "POST":
         try:
             post_data = request.get_json()
-            fname = post_data['fname']
+            name = post_data['name']
             uname = post_data['uname']
             passw = post_data['passw']
             email = post_data['email']
 
             with sqlite3.connect('database.db') as con:
                 cur = con.cursor()
-                cur.execute("INSERT INTO accounts (fname, uname, passw, email) VALUES (?, ?, ?, ?)", (fname, uname, passw, email))
+                cur.execute("INSERT INTO accounts (name, uname, passw, email) VALUES (?, ?, ?, ?)", (name, uname, passw, email))
                 # cur.execute("INSERT INTO admin (uname, passw) VALUES ('admin','admin')",
                 #             (uname, passw))
                 con.commit()
-                msg = fname + " Account succefully created."
+                msg = name + " Account succefully created."
         except Exception as e:
             con.rollback()
             msg = "Error occurred in insert operation: " + str(e)
@@ -68,7 +68,7 @@ def admin():
             cur.execute("INSERT INTO admin (uname, passw) VALUES ('admin','1234')",
                         )
             con.commit()
-            msg = " Aadmin succefully created."
+            msg = " Admin succefully created."
     except Exception as e:
         con.rollback()
         msg = "Error occurred in insert operation: " + str(e)
@@ -130,7 +130,7 @@ def edit_account(customer_id):
 
     records = {
         'id': customer_id,
-        'fname': post_data['fname'],
+        'name': post_data['name'],
         'uname': post_data['uname'],
         'passw': post_data['passw'],
         'email': post_data['email']
@@ -139,9 +139,9 @@ def edit_account(customer_id):
     con = sqlite3.connect('database.db')
     # Getting cursor
     cur = con.cursor()
-    sql = ("UPDATE accounts SET fname = ?, uname = ?, passw = ?, email = ? WHERE id =?")
+    sql = ("UPDATE accounts SET name = ?, uname = ?, passw = ?, email = ? WHERE id =?")
         # Editing data
-    cur.execute(sql, (records['fname'],records['uname'], records['passw'], records['email'],records['id']))
+    cur.execute(sql, (records['name'],records['uname'], records['passw'], records['email'],records['id']))
         # Applying changes
     con.commit()
     return jsonify(records)
